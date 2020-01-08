@@ -9,7 +9,7 @@ import top.simpleito.jwtspringsecuritydemo.InMemoryPermissionDao;
 import top.simpleito.jwtspringsecuritydemo.InMemoryUserDao;
 
 @Component
-public class DemoUserDetailService implements UserDetailsService {
+public class LoginUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         InMemoryUserDao.User myUser = InMemoryUserDao.getUser(username);
@@ -19,7 +19,7 @@ public class DemoUserDetailService implements UserDetailsService {
         return User.builder()
                 .username(username)
                 .password(myUser.getPassword())
-                .authorities(InMemoryPermissionDao.getAuthorities(username))
+//                .authorities(InMemoryPermissionDao.getAuthorities(username))
                 .build();
     }
 }
