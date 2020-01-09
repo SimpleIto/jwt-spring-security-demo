@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import top.simpleito.jwtspringsecuritydemo.auth.jwtutils.JwtToken;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -22,6 +23,7 @@ import java.util.Formatter;
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     private String token;
+    private JwtToken
 
 
     private String username;

@@ -1,5 +1,6 @@
 package top.simpleito.jwtspringsecuritydemo.auth;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -18,8 +19,9 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
-        return null;//objectmapper
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(username, password, null));
     }
-
 }
