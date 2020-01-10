@@ -19,6 +19,7 @@ import java.io.IOException;
 
 public class LoginConfigurer<T extends LoginConfigurer<T,B>, B extends HttpSecurityBuilder<B>> extends AbstractHttpConfigurer<T, B>{
     private LoginFilter authFilter;
+    private AuthenticationSuccessHandler authenticationSuccessHandler;
 
     public LoginConfigurer(String loginUrl, String httpMethod) {
         authFilter = new LoginFilter(new AntPathRequestMatcher(loginUrl, httpMethod));
@@ -27,14 +28,15 @@ public class LoginConfigurer<T extends LoginConfigurer<T,B>, B extends HttpSecur
     @Override
     public void configure(B http) throws Exception {
         authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-
         authFilter.setAuthenticationFailureHandler(new HttpStatusAuthenticationFailureHandler());
-        authFilter.setAuthenticationSuccessHandler(new AuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-                UsernamePasswordAuthenticationToken
-            }
-        });
+        authFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
     }
 
+    public AuthenticationSuccessHandler getAuthenticationSuccessHandler() {
+        return authenticationSuccessHandler;
+    }
+
+    public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
+    }
 }

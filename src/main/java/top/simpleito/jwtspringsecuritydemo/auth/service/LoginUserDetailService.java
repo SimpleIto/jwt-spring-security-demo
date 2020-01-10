@@ -1,4 +1,4 @@
-package top.simpleito.jwtspringsecuritydemo.auth;
+package top.simpleito.jwtspringsecuritydemo.auth.service;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -16,11 +16,9 @@ public class InMemoryUserDao {
     }
 
     private static void insertUser(String username, String password){
-        String salt = BCrypt.gensalt();
-        password = BCrypt.hashpw(password,salt);
+        password = BCrypt.hashpw(password, BCrypt.gensalt(12));
 
         User newUser = new User(users.size(),username, password);
-        newUser.salt = salt;
         users.put(newUser.getUsername(), newUser);
     }
 
@@ -32,13 +30,14 @@ public class InMemoryUserDao {
         private Integer id;
         private String username;
         private String password;
-        private String salt;
+        private int loginTimes;
 
         public User(){}
         public User(Integer id, String username, String password) {
             this.id = id;
             this.username = username;
             this.password = password;
+            loginTimes = 0;
         }
 
         public Integer getId() {
@@ -63,6 +62,14 @@ public class InMemoryUserDao {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public int getLoginTimes() {
+            return loginTimes;
+        }
+
+        public void setLoginTimes(int loginTimes) {
+            this.loginTimes = loginTimes;
         }
     }
 }

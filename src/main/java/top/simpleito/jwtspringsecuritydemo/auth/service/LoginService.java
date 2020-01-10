@@ -7,5 +7,4 @@ public class LoginService {
 
     public void loginSuccess(String username){
 
-    }
-}
+    }}
