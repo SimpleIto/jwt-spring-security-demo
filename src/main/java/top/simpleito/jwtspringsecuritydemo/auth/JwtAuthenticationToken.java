@@ -15,11 +15,11 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     public JwtAuthenticationToken(String token, Collection<? extends GrantedAuthority> authorities){
         super(authorities);
-        try {
-            jwt = new Jwt(token, JdkMacCryptoSignatureAlgorithm.HMACSHA256);
-        } catch (Exception e){
-            throw new BadCredentialsException("invalid token");
-        }
+        jwt = new Jwt(token, JdkMacCryptoSignatureAlgorithm.HMACSHA256);
+    }
+    public JwtAuthenticationToken(Jwt jwt, Collection<? extends GrantedAuthority> authorities){
+        super(authorities);
+        this.jwt = jwt;
     }
 
     @Override

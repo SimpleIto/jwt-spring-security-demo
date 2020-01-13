@@ -5,6 +5,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import top.simpleito.jwtspringsecuritydemo.InMemoryPermissionDao;
 import top.simpleito.jwtspringsecuritydemo.auth.jwtutils.Jwt;
 
 import java.util.Calendar;
@@ -22,23 +23,30 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("invalid token");
         }
 
-
         try {
             //校验token是否被修改
-
-
+            if (jwt.checkIsModified())
+                throw new BadCredentialsException("invalid token");
             //校验token是否过期
             Calendar calendar = Calendar.getInstance(Locale.CHINA);
             long currentTime = calendar.getTimeInMillis();
             Number exp = (Number) jwt.getPayloadField("exp");
             if (exp.longValue() < currentTime)
                 throw new CredentialsExpiredException("expired token");
-        } catch (ClassCastException e){
-            throw new BadCredentialsException("invalid token");
+            //就做这check，毕竟有密钥 不会伪造。
+            //经过这俩校验后就能保证token是颁发的，且合法的，也不用做字段校验了。当然也可以访问呢数据库来进一步避免，但这里没走那种模式 也省了一次IO
+        } catch (ClassCastException | NullPointerException e) {
+            throwExceptionInvalidToken();
         }
 
+        JwtAuthenticationToken populatedAuth = new JwtAuthenticationToken(jwt, InMemoryPermissionDao.getAuthorities((String) jwt.getPayloadField("sub")));
+        populatedAuth.setAuthenticated(true);
+        return populatedAuth;
     }
 
+    protected void throwExceptionInvalidToken() throws BadCredentialsException{
+        throw new BadCredentialsException("invalid token");
+    }
     @Override
     public boolean supports(Class<?> aClass) {
         return aClass.equals(JwtAuthenticationToken.class);

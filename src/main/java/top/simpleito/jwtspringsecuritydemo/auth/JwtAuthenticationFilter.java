@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response){
         String jwtToken = getJwtToken(request);
         JwtAuthenticationToken token = new JwtAuthenticationToken(jwtToken, null);
         return getAuthenticationManager().authenticate(token);
@@ -45,8 +45,8 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         return authInfo.substring("Bearer ".length(), authInfo.length());
     }
 
-    @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        super.successfulAuthentication(request, response, chain, authResult);
-    }
+//    @Override
+//    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+//        super.successfulAuthentication(request, response, chain, authResult);
+//    }
 }
