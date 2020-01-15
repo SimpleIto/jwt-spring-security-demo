@@ -1,6 +1,7 @@
 package top.simpleito.jwtspringsecuritydemo;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,14 +17,19 @@ public class InMemoryUserDao {
     }
 
     private static void insertUser(String username, String password){
-        password = BCrypt.hashpw(password, BCrypt.gensalt(12));
+        password = BCrypt.hashpw(password, BCrypt.gensalt(10));
 
         User newUser = new User(users.size(),username, password);
         users.put(newUser.getUsername(), newUser);
     }
 
     public static User getUser(String username){
+        System.out.println("查询了一次用户数据库");
         return users.get(username);
+    }
+    public static void loginSuccess(String username){
+        System.out.println(username+"成功登录一次");
+        users.get(username).loginTimes++;
     }
 
     public static class User{

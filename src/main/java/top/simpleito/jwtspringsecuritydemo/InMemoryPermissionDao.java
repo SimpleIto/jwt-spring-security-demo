@@ -25,6 +25,7 @@ public class InMemoryPermissionDao {
     }
 
     public static Collection<GrantedAuthority> getAuthorities(String username){
+        System.out.println("查询用户权限");
         return userAuthorities.get(username);
     }
 }

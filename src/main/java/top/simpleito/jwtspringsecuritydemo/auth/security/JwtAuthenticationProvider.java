@@ -1,4 +1,4 @@
-package top.simpleito.jwtspringsecuritydemo.auth;
+package top.simpleito.jwtspringsecuritydemo.auth.security;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -6,6 +6,8 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import top.simpleito.jwtspringsecuritydemo.InMemoryPermissionDao;
+import top.simpleito.jwtspringsecuritydemo.InMemoryUserDao;
+import top.simpleito.jwtspringsecuritydemo.auth.jwtutils.JdkMacCryptoSignatureAlgorithm;
 import top.simpleito.jwtspringsecuritydemo.auth.jwtutils.Jwt;
 
 import java.util.Calendar;
@@ -24,12 +26,14 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         }
 
         try {
+
             //校验token是否被修改
+            ((JdkMacCryptoSignatureAlgorithm)jwt.getSignatureAlgorithm()).setSecret(InMemoryUserDao.getUser((String) jwt.getPayloadField("sub")).getPassword().getBytes());//使用密码来作为HMAC密钥
             if (jwt.checkIsModified())
                 throw new BadCredentialsException("invalid token");
             //校验token是否过期
             Calendar calendar = Calendar.getInstance(Locale.CHINA);
-            long currentTime = calendar.getTimeInMillis();
+            long currentTime = calendar.getTimeInMillis()/1000;
             Number exp = (Number) jwt.getPayloadField("exp");
             if (exp.longValue() < currentTime)
                 throw new CredentialsExpiredException("expired token");

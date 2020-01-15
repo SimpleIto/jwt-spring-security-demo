@@ -1,4 +1,4 @@
-package top.simpleito.jwtspringsecuritydemo.auth;
+package top.simpleito.jwtspringsecuritydemo.auth.security;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

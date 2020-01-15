@@ -1,4 +1,4 @@
-package top.simpleito.jwtspringsecuritydemo.auth;
+package top.simpleito.jwtspringsecuritydemo.auth.security;
 
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -29,7 +29,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public String getPrincipal() {
-        throw new UnsupportedOperationException();
+        return jwt.getToken();
     }
 
     public Jwt getJwt() {

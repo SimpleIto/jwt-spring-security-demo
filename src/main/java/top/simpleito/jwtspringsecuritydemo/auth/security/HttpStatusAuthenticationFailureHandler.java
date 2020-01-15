@@ -1,4 +1,4 @@
-package top.simpleito.jwtspringsecuritydemo.auth;
+package top.simpleito.jwtspringsecuritydemo.auth.security;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;

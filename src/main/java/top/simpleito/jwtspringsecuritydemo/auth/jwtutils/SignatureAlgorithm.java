@@ -7,12 +7,12 @@ public interface SignatureAlgorithm {
     String getJwtAlgName();
 
     /**
-     * 这里之所以不用byte[]作为参数，因为那样就没有机会规避“约定”参进来
+     * 这里不用byte[]做参数，本来是想提供一个口子让用户能规避“约定”参进来
+     * 什么“约定”？encodedHeaderAndPayload 其实原JSON内容在"ISO编码"下的二进制数据的Base64编码形式。用户可以通过对该str，以Base64解码后，再以ISO还原为原str内容，再以想要的规则获取二进制数据，再编码
+     * 其实想想都一样，照这样说，传byte[]也能用注释给用户说这是Json再iso编码下二进制比特数据
      *
-     * 什么“约定”？该参数，实际是在Jwt中对header、payload，Base64.encode()的结果。而encode()是原byte[]数据在ascii编码下的映射结果。万一我签名并不想hash目标字符串在ascii下的byte[]结果呢？
-     *
-     * 那为什么不直接传 原header byte[]和 原payload byte[]呢？因为在getToken时，也要计算一趟编码后的header和token，按jwt规范计算签名中也会用到，那就重复计算了。
-     * 那计算编码后header和payload时的，Base64 encode()不算引入“约定”吗？ 不算，因为该计算byte[]并未被外部使用，而是直接生成目标token字符串。
+     * 所以最好是Jwt Class中再抽象出一个接口让用户自己把JsonStr -> byte[]或指定字符集；
+     * 同时在解析token，以及校验token是否被修改时 先Base64对前俩部分解码后，再用接口byte[] -> JsonStr或者字符集来解析
      */
     byte[] generateSignature(String encodedHeaderAndPayload);
 }

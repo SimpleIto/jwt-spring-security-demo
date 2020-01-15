@@ -14,7 +14,7 @@ public class Base64JacksonJwtTokenParser implements JwtTokenParser {
 
     @Override
     public void parse(String token, Map<String, Object> header, Map<String, Object> payload) throws JsonProcessingException {
-        String[] parts = token.split(".");
+        String[] parts = token.split("\\.");
         Base64.Decoder decoder = Base64.getUrlDecoder();
 
         String headerToken = new String(decoder.decode(parts[0]));

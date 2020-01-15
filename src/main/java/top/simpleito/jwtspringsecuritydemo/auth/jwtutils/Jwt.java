@@ -4,19 +4,17 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author https://github.com/SimpleIto
+ */
 public class Jwt {
     private String token;
 
     private Map<String, Object> header;
     private Map<String, Object> payload;
 
-//    private String encodedHeader;
-//    private String encodedPayload;
-//    private String encodedSignature;
     private byte[] headerBytes;
     private byte[] payloadBytes;
-//    private byte[] encodedHeader;
-//    private byte[] encodedPayload;
 
     private JwtTokenParser tokenParser = new Base64JacksonJwtTokenParser();
     private SignatureAlgorithm signatureAlgorithm;
@@ -43,17 +41,20 @@ public class Jwt {
         if (json.length() > 1)
             json = json.substring(0, json.length()-1);
 
+        json += "}";
+
         return json;
     }
 
     private void buildToken(){
         Base64.Encoder encoder = Base64.getUrlEncoder();
         if (header != null){
-            headerBytes = convertMapToJsonStringBytes(header).getBytes(); //默认对json字串获取其ISO编码规则下byte[]进行加密
+            headerBytes = convertMapToJsonStringBytes(header).getBytes();
             payloadBytes = convertMapToJsonStringBytes(payload).getBytes();
         }
         String t1 = encoder.encodeToString(headerBytes) + "." + encoder.encodeToString(payloadBytes);
         this.token = t1 + "." + encoder.encodeToString(signatureAlgorithm.generateSignature(t1));
+        token = removeSuffixEqual(token);
 
         supportAccessToken = true;
     }
@@ -61,11 +62,6 @@ public class Jwt {
     public void parseToken() throws Exception {
         checkCanAccessToken();
 
-        //解析Token为各字段
-        String[] tokenParts = token.split(".");
-//        encodedHeader = tokenParts[0];
-//        encodedPayload = tokenParts[1];
-//        encodedSignature = tokenParts[2];
         header = new HashMap<>();
         payload = new HashMap<>();
         tokenParser.parse(token, header, payload);
@@ -84,9 +80,10 @@ public class Jwt {
         this.payloadBytes = payloadBytes;
         this.signatureAlgorithm = signatureAlgorithm;
     }
-    private Jwt(Map<String, Object> header, Map<String, Object> payload) {
+    private Jwt(Map<String, Object> header, Map<String, Object> payload, SignatureAlgorithm signatureAlgorithm) {
         this.header = header;
         this.payload = payload;
+        this.signatureAlgorithm = signatureAlgorithm;
         supportAccessField = true;
     }
 
@@ -122,23 +119,37 @@ public class Jwt {
         if (signatureAlgorithm == null)
             throw new RuntimeException("Must Specify SignatureAlgorithm");
         try {
-            String[] tokenParts = token.split(".");
+            String[] tokenParts = token.split("\\.");
             String sig = Base64.getUrlEncoder().encodeToString(signatureAlgorithm.generateSignature(tokenParts[0] + "." + tokenParts[1]));
-            while (sig.lastIndexOf("=") == (sig.length() - 1))
-                sig = sig.substring(0, sig.length() - 1);
-            if (sig.equals(tokenParts[3]))
+            sig = removeSuffixEqual(sig);
+
+            if (sig.equals(tokenParts[2]))
                 return false;
             else
                 return true;
         } catch (Exception e){
             return false;
         }
-
     }
 
+    /**
+     * 清除最后一个 . 号之后的=
+     * @param s
+     * @return
+     */
+    private String removeSuffixEqual(String s){
+        int suffixEqualChar = s.lastIndexOf("=");
+        int lastPointChar = s.lastIndexOf(".");
+        while (suffixEqualChar == (s.length() - 1) && suffixEqualChar > lastPointChar) {
+            s = s.substring(0, s.length() - 1);
+            suffixEqualChar = s.lastIndexOf("=");
+        }
+        return s;
+    }
 
-
-
+    public SignatureAlgorithm getSignatureAlgorithm() {
+        return signatureAlgorithm;
+    }
 
     public static class JwtBuilder {
         private JwtHeaderBuilder headerBuilder;
@@ -163,12 +174,20 @@ public class Jwt {
                 return field("alg", alg.getJwtAlgName());
             }
 
-            public JwtPayloadBuilder payload(){ return JwtBuilder.this.payloadBuilder; }
+            public JwtPayloadBuilder payload(){
+                if (JwtBuilder.this.payloadBuilder == null)
+                    JwtBuilder.this.payloadBuilder = new JwtPayloadBuilder();
+                return JwtBuilder.this.payloadBuilder;
+            }
             private Map<String, Object> build(){ return header; }
         }
 
         public class JwtPayloadBuilder {
             public Map<String, Object> payload;
+
+            public JwtPayloadBuilder(){
+                payload = new HashMap<>();
+            }
 
             public JwtPayloadBuilder field(String key, Object value){
                 payload.put(key, value);
@@ -198,7 +217,7 @@ public class Jwt {
             if ((headerBuilder == null && payloadBuilder == null)
                 || signatureAlgorithm == null)
                 throw new RuntimeException("jwt must contains header and payload and alg");
-            return new Jwt(headerBuilder.build(), payloadBuilder.build());
+            return new Jwt(headerBuilder.build(), payloadBuilder.build(), signatureAlgorithm);
         }
     }
 
