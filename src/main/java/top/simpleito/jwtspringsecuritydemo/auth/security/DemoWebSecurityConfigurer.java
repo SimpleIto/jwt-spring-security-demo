@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
  * 除登录地址外，均进行JWT校验，读取Header中的Authorize字段，解析JWT
  * JWT校验规则：解析JWT，校验是否被修改（读取"sub"并从库中读取相应密码作为密钥，以HMAC256进行签名计算）；校验是否过期("exp")；通过即合法，看着校验少，其实保证不被修改后 不可能被伪造
  * /login POST为登录地址，用户名和密码字段为username、 password。登录成功后Header中返回JWT
+ * Header和载荷最后的=未移除，签名移除了
  *
  * @author https://github.com/SimpleIto
  */
